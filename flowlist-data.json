@@ -66,6 +66,13 @@
               },
               {
                 "id": "mmzd67h5qlmr",
+                "text": "Add Susan to the session?",
+                "checked": false,
+                "type": "check",
+                "children": []
+              },
+              {
+                "id": "mmzd6gixwxjj",
                 "text": "",
                 "checked": false,
                 "type": "check",
