@@ -25,10 +25,18 @@
           },
           {
             "id": "mmzd324h2si8",
-            "text": "",
+            "text": "Follow up on data/things for planning",
             "checked": false,
             "type": "bullet",
-            "children": []
+            "children": [
+              {
+                "id": "mmzd3tkhdwz8",
+                "text": "",
+                "checked": false,
+                "type": "bullet",
+                "children": []
+              }
+            ]
           }
         ]
       }
