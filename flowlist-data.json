@@ -38,6 +38,13 @@
               },
               {
                 "id": "mmzd4yip8u27",
+                "text": "Talk to referrers",
+                "checked": false,
+                "type": "check",
+                "children": []
+              },
+              {
+                "id": "mmzd51mhm4s6",
                 "text": "",
                 "checked": false,
                 "type": "check",
