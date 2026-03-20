@@ -52,19 +52,19 @@
               },
               {
                 "id": "mmzd3w2pmc63",
-                "text": "",
+                "text": "Mission Statement Session",
                 "checked": false,
                 "type": "bullet",
                 "children": []
+              },
+              {
+                "id": "mmzd5d0h3y27",
+                "text": "",
+                "checked": false,
+                "type": "check",
+                "children": []
               }
             ]
-          },
-          {
-            "id": "mmzd5d0h3y27",
-            "text": "",
-            "checked": false,
-            "type": "check",
-            "children": []
           }
         ]
       }
