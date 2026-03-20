@@ -27,7 +27,7 @@
             "id": "mmzd324h2si8",
             "text": "Follow up on data/things for planning",
             "checked": false,
-            "type": "bullet",
+            "type": "check",
             "children": [
               {
                 "id": "mmzd3tkhdwz8",
