@@ -2,7 +2,15 @@
   "tree": {
     "id": "root",
     "text": "",
-    "children": [],
+    "children": [
+      {
+        "id": "mmzd1xm2i49y",
+        "text": "",
+        "checked": false,
+        "type": "bullet",
+        "children": []
+      }
+    ],
     "checked": false,
     "type": "bullet"
   },
