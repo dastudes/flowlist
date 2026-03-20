@@ -13,14 +13,14 @@
             "id": "mmzd246iuas2",
             "text": "Create a planning process/timeline/list for Laura",
             "checked": false,
-            "type": "bullet",
+            "type": "check",
             "children": []
           },
           {
             "id": "mmzd2npm5p3y",
             "text": "Start renewal process for members at end of two years (after the next Board meeting)",
             "checked": false,
-            "type": "bullet",
+            "type": "check",
             "children": []
           },
           {
