@@ -14,15 +14,7 @@
             "text": "Create a planning process/timeline/list for Laura",
             "checked": false,
             "type": "check",
-            "children": [
-              {
-                "id": "mmzd3895w4pd",
-                "text": "",
-                "checked": false,
-                "type": "bullet",
-                "children": []
-              }
-            ]
+            "children": []
           },
           {
             "id": "mmzd2npm5p3y",
