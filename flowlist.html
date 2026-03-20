@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowList</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0efe9;
+    --text:#1a1a1a;--text2:#666;--text3:#999;
+    --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.2);
+    --accent:#2563eb;--accent-bg:#eff6ff;
+    --success:#16a34a;--success-bg:#f0fdf4;
+    --warn:#d97706;--warn-bg:#fffbeb;
+    --danger:#dc2626;--danger-bg:#fef2f2;
+    --radius:8px;--radius-lg:12px;
+    --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'SF Mono','Fira Code',monospace;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
+      --text:#f2f2f7;--text2:#aeaeb2;--text3:#636366;
+      --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);
+      --accent:#60a5fa;--accent-bg:rgba(96,165,250,0.1);
+      --success:#4ade80;--success-bg:rgba(74,222,128,0.1);
+      --warn:#fbbf24;--warn-bg:rgba(251,191,36,0.1);
+      --danger:#f87171;--danger-bg:rgba(248,113,113,0.1);
+    }
+  }
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.5}
+
+  /* ── Layout ── */
+  .app{max-width:720px;margin:0 auto;padding:0 0 80px}
+
+  /* ── Header ── */
+  .header{display:flex;align-items:center;gap:8px;padding:12px 16px 10px;border-bottom:0.5px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
+  .logo{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-0.3px;flex-shrink:0}
+  .logo span{color:var(--accent)}
+  .bc{display:flex;align-items:center;gap:3px;flex:1;overflow:hidden;font-size:13px;color:var(--text2);min-width:0}
+  .bc-crumb{cursor:pointer;padding:2px 5px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;transition:background 0.1s}
+  .bc-crumb:hover{background:var(--bg2)}
+  .bc-sep{color:var(--border2);font-size:11px;flex-shrink:0}
+  .bc-cur{color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+  .hbtns{display:flex;align-items:center;gap:4px;flex-shrink:0}
+  .hbtn{font-size:12px;color:var(--text2);border:0.5px solid var(--border);border-radius:6px;padding:3px 9px;cursor:pointer;background:transparent;transition:background 0.1s,color 0.1s;white-space:nowrap}
+  .hbtn:hover{background:var(--bg2);color:var(--text)}
+
+  /* ── Sync status ── */
+  .syncbar{display:flex;align-items:center;gap:6px;padding:5px 16px;font-size:12px;color:var(--text3);border-bottom:0.5px solid var(--border);min-height:28px;transition:all 0.2s}
+  .syncbar.ok{color:var(--success)}
+  .syncbar.saving{color:var(--warn)}
+  .syncbar.err{color:var(--danger)}
+  .syncdot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+  .syncbar.saving .syncdot{animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  /* ── Setup panel ── */
+  .setup{padding:24px 16px;max-width:480px;margin:0 auto}
+  .setup h2{font-size:18px;font-weight:600;margin-bottom:6px}
+  .setup p{font-size:14px;color:var(--text2);margin-bottom:20px;line-height:1.6}
+  .setup-steps{margin-bottom:24px}
+  .setup-step{display:flex;gap:10px;margin-bottom:14px;font-size:13px;color:var(--text2);line-height:1.6}
+  .step-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .setup-step a{color:var(--accent);text-decoration:none}
+  .setup-step a:hover{text-decoration:underline}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:500;margin-bottom:5px;color:var(--text)}
+  .field input{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:14px;font-family:var(--mono);outline:none;transition:border 0.15s}
+  .field input:focus{border-color:var(--accent)}
+  .field .hint{font-size:11px;color:var(--text3);margin-top:4px}
+  .btn-primary{background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:9px 20px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity 0.15s}
+  .btn-primary:hover{opacity:0.85}
+  .btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+  .setup-err{color:var(--danger);font-size:13px;margin-top:10px;display:none}
+
+  /* ── Settings drawer ── */
+  .settings{padding:16px;border-bottom:0.5px solid var(--border);display:none;background:var(--bg2)}
+  .settings.open{display:block}
+  .settings h3{font-size:14px;font-weight:600;margin-bottom:12px}
+  .settings .field input{font-size:13px;padding:6px 8px}
+  .settings-btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn-sm{font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg);color:var(--text);transition:background 0.1s}
+  .btn-sm:hover{background:var(--bg3)}
+  .btn-danger{border-color:var(--danger);color:var(--danger)}
+  .btn-danger:hover{background:var(--danger-bg)}
+
+  /* ── Help ── */
+  .help{background:var(--bg2);border-bottom:0.5px solid var(--border);padding:10px 16px;font-size:12px;color:var(--text2);line-height:1.8;display:none}
+  .help.open{display:block}
+  .help-row{display:flex;gap:8px;align-items:baseline}
+  .kbd{font-family:var(--mono);font-size:10px;background:var(--bg);border:0.5px solid var(--border2);border-radius:4px;padding:1px 5px;color:var(--text);white-space:nowrap}
+  .help-divider{margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);font-size:11px}
+
+  /* ── Outline ── */
+  .outline{padding:6px 16px 60px}
+  .zoom-title{font-size:20px;font-weight:600;color:var(--text);padding:10px 0 12px 26px;word-break:break-word;line-height:1.4}
+  .iw{position:relative}
+  .ir{display:flex;align-items:flex-start;padding:1px 0;border-radius:var(--radius);transition:background 0.1s}
+  .ir:hover{background:var(--bg2)}
+  .igutter{display:flex;align-items:flex-start;padding-top:5px;flex-shrink:0}
+  .bzone{width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:5px;flex-shrink:0;transition:background 0.12s}
+  .bzone:hover{background:var(--bg3)}
+  .bdot{width:5px;height:5px;border-radius:50%;background:var(--border2);transition:all 0.15s;flex-shrink:0}
+  .bzone:hover .bdot{background:var(--text2);transform:scale(1.4)}
+  .iw.has-ch>.ir>.igutter>.bzone>.bdot{background:var(--text2)}
+  .cbx{width:14px;height:14px;border:1.5px solid var(--border2);border-radius:3px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.12s;background:transparent;margin-top:1px}
+  .cbx:hover{border-color:var(--accent)}
+  .cbx.chk{background:var(--accent);border-color:var(--accent)}
+  .cbx.chk::after{content:'';width:7px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translateY(-1px);display:block}
+  .itext{flex:1;min-width:0;outline:none;font-size:15px;line-height:26px;color:var(--text);word-break:break-word;white-space:pre-wrap;min-height:26px;cursor:text;padding:0 4px;border-radius:4px;font-family:var(--font)}
+  .itext:empty::before{content:attr(data-ph);color:var(--text3);pointer-events:none}
+  .itext.done{color:var(--text3);text-decoration:line-through}
+  .iact{display:flex;align-items:center;gap:1px;padding-top:3px;opacity:0;transition:opacity 0.12s;flex-shrink:0}
+  .ir:hover .iact{opacity:1}
+  .ab{width:22px;height:22px;border:none;background:transparent;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:13px;transition:color 0.12s,background 0.12s;padding:0;line-height:1}
+  .ab:hover{background:var(--bg3);color:var(--text)}
+  .ich{margin-left:22px}
+  .empty-hint{padding:20px 0 0 26px;color:var(--text3);font-size:14px;cursor:text}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Setup screen (shown when no PAT) -->
+  <div id="setupScreen" class="setup" style="display:none">
+    <h2>Welcome to <span style="color:var(--accent)">FlowList</span></h2>
+    <p>Your lists sync across devices via a JSON file in your GitHub repo. One-time setup takes about two minutes.</p>
+    <div class="setup-steps">
+      <div class="setup-step"><div class="step-num">1</div><div>Create a new GitHub repo called <strong>flowlist</strong> at <a href="https://github.com/new" target="_blank">github.com/new</a>. Make it public. Check "Add a README file."</div></div>
+      <div class="setup-step"><div class="step-num">2</div><div>Go to <a href="https://github.com/settings/tokens/new" target="_blank">GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)</a>. Create a token with <strong>repo</strong> scope. Copy it.</div></div>
+      <div class="setup-step"><div class="step-num">3</div><div>Paste it below. Your token is stored only in this browser's local storage — never sent anywhere except GitHub's API.</div></div>
+    </div>
+    <div class="field">
+      <label>GitHub Personal Access Token</label>
+      <input type="password" id="setupPat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+      <div class="hint">Stored locally in your browser only</div>
+    </div>
+    <div class="field">
+      <label>Repo (owner/name)</label>
+      <input type="text" id="setupRepo" value="dastudes/flowlist">
+      <div class="hint">The repo you just created</div>
+    </div>
+    <div class="field">
+      <label>Data filename</label>
+      <input type="text" id="setupFile" value="flowlist-data.json">
+    </div>
+    <button class="btn-primary" id="setupSave">Connect to GitHub</button>
+    <div class="setup-err" id="setupErr"></div>
+  </div>
+
+  <!-- Main app (shown when configured) -->
+  <div id="mainApp" style="display:none">
+    <div class="header">
+      <span class="logo">Flow<span>List</span></span>
+      <div class="bc" id="bc"></div>
+      <div class="hbtns">
+        <button class="hbtn" id="helpBtn">shortcuts</button>
+        <button class="hbtn" id="settingsBtn">⚙</button>
+      </div>
+    </div>
+
+    <div class="syncbar" id="syncbar">
+      <div class="syncdot"></div>
+      <span id="syncmsg">loading…</span>
+    </div>
+
+    <div class="settings" id="settingsPanel">
+      <h3>Settings</h3>
+      <div class="field">
+        <label>Personal Access Token</label>
+        <input type="password" id="sPat" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Repo (owner/name)</label>
+        <input type="text" id="sRepo">
+      </div>
+      <div class="field">
+        <label>Data filename</label>
+        <input type="text" id="sFile">
+      </div>
+      <div class="settings-btns">
+        <button class="btn-sm" id="sSave">Save settings</button>
+        <button class="btn-sm" id="sForce">Force sync now</button>
+        <button class="btn-sm btn-danger" id="sDisconnect">Disconnect</button>
+      </div>
+    </div>
+
+    <div class="help" id="helpPanel">
+      <div class="help-row"><span class="kbd">Enter</span> new item below</div>
+      <div class="help-row"><span class="kbd">Tab</span> indent &nbsp;|&nbsp; <span class="kbd">Shift+Tab</span> outdent</div>
+      <div class="help-row"><span class="kbd">Backspace</span> delete empty item</div>
+      <div class="help-row"><span class="kbd">↑ ↓</span> move between items</div>
+      <div class="help-divider">Click <strong>●</strong> bullet to zoom in &nbsp;|&nbsp; <strong>☐</strong> to toggle checkbox &nbsp;|&nbsp; hover item for more actions</div>
+    </div>
+
+    <div class="outline" id="outline"></div>
+  </div>
+
+</div>
+<script>
+// ── Config ──────────────────────────────────────────────
+const CFG_KEY='fl_config';
+const TREE_KEY='fl_tree_cache';
+
+function getCfg(){try{return JSON.parse(localStorage.getItem(CFG_KEY)||'null');}catch{return null;}}
+function saveCfg(c){localStorage.setItem(CFG_KEY,JSON.stringify(c));}
+function clearCfg(){localStorage.removeItem(CFG_KEY);localStorage.removeItem(TREE_KEY);}
+
+// ── State ────────────────────────────────────────────────
+let tree={id:'root',text:'',children:[],checked:false,type:'bullet'};
+let zoomStack=[];
+let fileSha=null;
+let saveTimer=null;
+let pendingFocus=null,pendingCaret='end';
+let cfg=null;
+let isSaving=false;
+
+// ── GitHub API ──────────────────────────────────────────
+async function ghGet(){
+  const url=`https://api.github.com/repos/${cfg.repo}/contents/${cfg.file}`;
+  const r=await fetch(url,{headers:{Authorization:`token ${cfg.pat}`,'Accept':'application/vnd.github+json'}});
+  if(r.status===404)return null;
+  if(!r.ok)throw new Error(`GitHub read failed: ${r.status}`);
+  const d=await r.json();
+  fileSha=d.sha;
+  const content=JSON.parse(atob(d.content.replace(/\n/g,'')));
+  return content;
+}
+
+async function ghPut(data){
+  const url=`https://api.github.com/repos/${cfg.repo}/contents/${cfg.file}`;
+  const body={message:`FlowList sync ${new Date().toISOString()}`,content:btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))))};
+  if(fileSha)body.sha=fileSha;
+  const r=await fetch(url,{method:'PUT',headers:{Authorization:`token ${cfg.pat}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.json();throw new Error(e.message||`GitHub write failed: ${r.status}`);}
+  const d=await r.json();
+  fileSha=d.content.sha;
+}
+
+// ── Sync status ─────────────────────────────────────────
+function setSyncStatus(state,msg){
+  const bar=document.getElementById('syncbar');
+  const txt=document.getElementById('syncmsg');
+  bar.className='syncbar '+state;
+  txt.textContent=msg;
+}
+
+// ── Persistence ──────────────────────────────────────────
+function cacheLocal(){
+  try{localStorage.setItem(TREE_KEY,JSON.stringify({tree,zoomStack,sha:fileSha}));}catch{}
+}
+
+function loadLocal(){
+  try{
+    const d=JSON.parse(localStorage.getItem(TREE_KEY)||'null');
+    if(d){tree=d.tree||tree;zoomStack=d.zoomStack||[];fileSha=d.sha||null;return true;}
+  }catch{}
+  return false;
+}
+
+async function loadFromGitHub(){
+  setSyncStatus('saving','connecting to GitHub…');
+  try{
+    const data=await ghGet();
+    if(data){
+      tree=data.tree||tree;
+      zoomStack=data.zoomStack||[];
+      cacheLocal();
+      setSyncStatus('ok',`synced · ${new Date().toLocaleTimeString()}`);
+    }else{
+      // File doesn't exist yet — create it
+      setSyncStatus('saving','creating data file…');
+      await ghPut({tree,zoomStack});
+      setSyncStatus('ok','data file created · ready');
+    }
+  }catch(e){
+    setSyncStatus('err','sync error: '+e.message);
+  }
+}
+
+function scheduleSave(){
+  cacheLocal();
+  if(saveTimer)clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>pushToGitHub(),2000);
+  setSyncStatus('saving','saving…');
+}
+
+async function pushToGitHub(){
+  if(isSaving)return;
+  isSaving=true;
+  try{
+    await ghPut({tree,zoomStack});
+    cacheLocal();
+    setSyncStatus('ok',`synced · ${new Date().toLocaleTimeString()}`);
+  }catch(e){
+    setSyncStatus('err','save failed: '+e.message);
+  }finally{isSaving=false;}
+}
+
+// ── Tree ops ─────────────────────────────────────────────
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function findNode(node,id){if(node.id===id)return node;for(const c of node.children){const f=findNode(c,id);if(f)return f;}return null;}
+function findParent(node,id,par=null){if(node.id===id)return par;for(const c of node.children){const f=findParent(c,id,node);if(f!==undefined)return f;}return undefined;}
+function flatItems(node){const r=[];function w(n){for(const c of n.children){r.push(c);w(c);}}w(node);return r;}
+function getVR(){if(zoomStack.length===0)return tree;return findNode(tree,zoomStack[zoomStack.length-1].id)||tree;}
+function syncDOM(id){const el=document.querySelector(`.itext[data-id="${id}"]`);if(el){const n=findNode(tree,id);if(n)n.text=el.innerText.replace(/\n$/,'');}}
+function insertAfter(par,afterId,newN){const i=par.children.findIndex(c=>c.id===afterId);par.children.splice(i+1,0,newN);}
+function setCaretEnd(el){el.focus();const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
+function setCaretStart(el){el.focus();const r=document.createRange();r.selectNodeContents(el);r.collapse(true);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
+
+function doEnter(id){syncDOM(id);const node=findNode(tree,id);const par=findParent(tree,id);if(!par)return;const newN={id:uid(),text:'',checked:false,type:node.type,children:[]};if(node.children.length>0){node.children.unshift(newN);}else{insertAfter(par,id,newN);}pendingFocus=newN.id;pendingCaret='start';scheduleSave();render();}
+function doTab(id){syncDOM(id);const par=findParent(tree,id);if(!par)return;const idx=par.children.findIndex(c=>c.id===id);if(idx===0)return;const prev=par.children[idx-1];const node=par.children.splice(idx,1)[0];prev.children.push(node);pendingFocus=id;pendingCaret='end';scheduleSave();render();}
+function doShiftTab(id){syncDOM(id);const par=findParent(tree,id);if(!par)return;const grand=findParent(tree,par.id);if(!grand)return;const idx=par.children.findIndex(c=>c.id===id);const node=par.children.splice(idx,1)[0];const pi=grand.children.findIndex(c=>c.id===par.id);grand.children.splice(pi+1,0,node);pendingFocus=id;pendingCaret='end';scheduleSave();render();}
+function doBackspace(id){const par=findParent(tree,id);if(!par)return;const vr=getVR();const flat=flatItems(vr);if(flat.length<=1)return;const idx=flat.findIndex(n=>n.id===id);const pi=par.children.findIndex(c=>c.id===id);par.children.splice(pi,1);const prev=idx>0?flat[idx-1]:null;pendingFocus=prev?prev.id:null;pendingCaret='end';scheduleSave();render();}
+
+// ── Render ────────────────────────────────────────────────
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderBC(){
+  const bc=document.getElementById('bc');
+  if(!zoomStack.length){bc.innerHTML='';return;}
+  let h=`<span class="bc-crumb" data-ci="-1">Home</span>`;
+  zoomStack.forEach((item,i)=>{
+    h+=`<span class="bc-sep">›</span>`;
+    if(i===zoomStack.length-1){h+=`<span class="bc-cur">${esc(item.text||'(untitled)')}</span>`;}
+    else{h+=`<span class="bc-crumb" data-ci="${i}">${esc(item.text||'(untitled)')}</span>`;}
+  });
+  bc.innerHTML=h;
+}
+
+function renderItem(node){
+  const isChk=node.type==='check';
+  const isDone=isChk&&node.checked;
+  const gutter=isChk
+    ?`<div class="bzone" style="cursor:default;visibility:hidden"></div><div class="cbx${isDone?' chk':''}" data-action="toggle" data-id="${node.id}"></div>`
+    :`<div class="bzone" data-action="zoom" data-id="${node.id}" title="Zoom in"><div class="bdot"></div></div>`;
+  const actions=`<div class="iact">
+    <button class="ab" data-action="ttype" data-id="${node.id}" title="${isChk?'Make bullet':'Make checkbox'}">${isChk?'•':'☐'}</button>
+    <button class="ab" data-action="addch" data-id="${node.id}" title="Add child">+</button>
+  </div>`;
+  const kids=node.children.length>0?`<div class="ich">${node.children.map(c=>renderItem(c)).join('')}</div>`:'';
+  return`<div class="iw${node.children.length?' has-ch':''}" id="iw-${node.id}">
+    <div class="ir" data-id="${node.id}">
+      <div class="igutter">${gutter}</div>
+      <div style="flex:1;min-width:0">
+        <div class="itext${isDone?' done':''}" contenteditable="true" data-id="${node.id}" data-ph="…" spellcheck="false">${esc(node.text)}</div>
+      </div>
+      ${actions}
+    </div>
+    ${kids}
+  </div>`;
+}
+
+function render(){
+  const vr=getVR();
+  renderBC();
+  const out=document.getElementById('outline');
+  let h='';
+  if(zoomStack.length>0){h+=`<div class="zoom-title">${esc(vr.text||'(untitled)')}</div>`;}
+  if(vr.children.length===0){h+=`<div class="empty-hint" id="emptyhint">Start typing here…</div>`;}
+  else{h+=vr.children.map(c=>renderItem(c)).join('');}
+  out.innerHTML=h;
+  if(pendingFocus){
+    const el=document.querySelector(`.itext[data-id="${pendingFocus}"]`);
+    if(el){pendingCaret==='end'?setCaretEnd(el):setCaretStart(el);}
+    pendingFocus=null;
+  }
+}
+
+// ── Event wiring ──────────────────────────────────────────
+function wireOutline(){
+  const outline=document.getElementById('outline');
+
+  outline.addEventListener('keydown',e=>{
+    const el=e.target;if(!el.classList.contains('itext'))return;
+    const id=el.dataset.id;
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doEnter(id);}
+    else if(e.key==='Tab'){e.preventDefault();e.shiftKey?doShiftTab(id):doTab(id);}
+    else if(e.key==='Backspace'){const txt=el.innerText.replace(/\n$/,'');if(!txt){e.preventDefault();doBackspace(id);}}
+    else if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+      const flat=flatItems(getVR());
+      const idx=flat.findIndex(n=>n.id===id);
+      const next=e.key==='ArrowUp'?flat[idx-1]:flat[idx+1];
+      if(next){e.preventDefault();syncDOM(id);const nel=document.querySelector(`.itext[data-id="${next.id}"]`);if(nel)setCaretEnd(nel);}
+    }
+  });
+
+  outline.addEventListener('blur',e=>{
+    const el=e.target;if(!el.classList.contains('itext'))return;
+    syncDOM(el.dataset.id);scheduleSave();
+  },true);
+
+  outline.addEventListener('click',e=>{
+    if(e.target.id==='emptyhint'){
+      const vr=getVR();
+      const newN={id:uid(),text:'',checked:false,type:'bullet',children:[]};
+      vr.children.push(newN);pendingFocus=newN.id;pendingCaret='start';
+      scheduleSave();render();return;
+    }
+    const btn=e.target.closest('[data-action]');if(!btn)return;
+    const action=btn.dataset.action,id=btn.dataset.id;
+    if(action==='zoom'){
+      syncDOM(id);
+      const node=findNode(tree,id);if(!node)return;
+      zoomStack.push({id,text:node.text});
+      if(!node.children.length){const newN={id:uid(),text:'',checked:false,type:'bullet',children:[]};node.children.push(newN);pendingFocus=newN.id;}
+      else{pendingFocus=node.children[0].id;}
+      pendingCaret='start';scheduleSave();render();
+    }else if(action==='toggle'){
+      const node=findNode(tree,id);if(!node)return;
+      node.checked=!node.checked;scheduleSave();render();
+      setTimeout(()=>{const el=document.querySelector(`.itext[data-id="${id}"]`);if(el)el.focus();},10);
+    }else if(action==='ttype'){
+      syncDOM(id);const node=findNode(tree,id);if(!node)return;
+      node.type=node.type==='check'?'bullet':'check';
+      if(node.type==='bullet')node.checked=false;
+      scheduleSave();render();
+      setTimeout(()=>{const el=document.querySelector(`.itext[data-id="${id}"]`);if(el)el.focus();},10);
+    }else if(action==='addch'){
+      syncDOM(id);const node=findNode(tree,id);if(!node)return;
+      const newN={id:uid(),text:'',checked:false,type:'bullet',children:[]};
+      node.children.push(newN);pendingFocus=newN.id;pendingCaret='start';
+      scheduleSave();render();
+    }
+  });
+
+  document.getElementById('bc').addEventListener('click',e=>{
+    const c=e.target.closest('[data-ci]');if(!c)return;
+    const i=parseInt(c.dataset.ci);
+    zoomStack=i===-1?[]:zoomStack.slice(0,i+1);
+    scheduleSave();render();
+  });
+}
+
+// ── Setup screen ──────────────────────────────────────────
+async function initSetup(){
+  document.getElementById('setupScreen').style.display='block';
+  document.getElementById('setupSave').addEventListener('click',async()=>{
+    const pat=document.getElementById('setupPat').value.trim();
+    const repo=document.getElementById('setupRepo').value.trim();
+    const file=document.getElementById('setupFile').value.trim();
+    const err=document.getElementById('setupErr');
+    if(!pat||!repo||!file){err.textContent='All fields required.';err.style.display='block';return;}
+    err.style.display='none';
+    document.getElementById('setupSave').disabled=true;
+    document.getElementById('setupSave').textContent='Connecting…';
+    cfg={pat,repo,file};
+    try{
+      const data=await ghGet();
+      saveCfg(cfg);
+      if(data){tree=data.tree||tree;zoomStack=data.zoomStack||[];cacheLocal();}
+      else{await ghPut({tree,zoomStack});}
+      startApp();
+    }catch(e){
+      err.textContent='Could not connect: '+e.message;err.style.display='block';
+      document.getElementById('setupSave').disabled=false;
+      document.getElementById('setupSave').textContent='Connect to GitHub';
+      cfg=null;
+    }
+  });
+}
+
+// ── Settings panel ────────────────────────────────────────
+function initSettings(){
+  document.getElementById('settingsBtn').addEventListener('click',()=>{
+    const p=document.getElementById('settingsPanel');
+    p.classList.toggle('open');
+    if(p.classList.contains('open')){
+      document.getElementById('sPat').value=cfg.pat;
+      document.getElementById('sRepo').value=cfg.repo;
+      document.getElementById('sFile').value=cfg.file;
+    }
+  });
+  document.getElementById('sSave').addEventListener('click',()=>{
+    cfg.pat=document.getElementById('sPat').value.trim()||cfg.pat;
+    cfg.repo=document.getElementById('sRepo').value.trim()||cfg.repo;
+    cfg.file=document.getElementById('sFile').value.trim()||cfg.file;
+    saveCfg(cfg);
+    document.getElementById('settingsPanel').classList.remove('open');
+    setSyncStatus('saving','reconnecting…');
+    loadFromGitHub().then(render);
+  });
+  document.getElementById('sForce').addEventListener('click',()=>{
+    loadFromGitHub().then(render);
+  });
+  document.getElementById('sDisconnect').addEventListener('click',()=>{
+    if(confirm('Disconnect from GitHub? Your local cache will be cleared.')){
+      clearCfg();location.reload();
+    }
+  });
+  document.getElementById('helpBtn').addEventListener('click',()=>{
+    const p=document.getElementById('helpPanel');
+    p.classList.toggle('open');
+    document.getElementById('helpBtn').textContent=p.classList.contains('open')?'hide':'shortcuts';
+  });
+}
+
+// ── Boot ──────────────────────────────────────────────────
+function startApp(){
+  document.getElementById('setupScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  initSettings();
+  wireOutline();
+  // Load local cache first for instant render, then sync from GitHub
+  const hadCache=loadLocal();
+  if(hadCache){render();setSyncStatus('ok','loaded from cache');}
+  else{if(!getVR().children.length){getVR().children.push({id:uid(),text:'',checked:false,type:'bullet',children:[]});}}
+  render();
+  loadFromGitHub().then(()=>{render();setTimeout(()=>{const f=document.querySelector('.itext');if(f)f.focus();},100);});
+}
+
+// ── Init ──────────────────────────────────────────────────
+cfg=getCfg();
+if(cfg){startApp();}else{initSetup();}
+</script>
+</body>
+</html>
