@@ -17,13 +17,6 @@
             "children": []
           },
           {
-            "id": "mmzd4yip8u27",
-            "text": "Talk to referrers",
-            "checked": false,
-            "type": "check",
-            "children": []
-          },
-          {
             "id": "mmzd51mhm4s6",
             "text": "Add data to program graphic for Laura",
             "checked": false,
@@ -33,6 +26,13 @@
           {
             "id": "mmzd5d0h3y27",
             "text": "Pull together thoughts on how to lead",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
+            "id": "mmzd4yip8u27",
+            "text": "Talk to referrers",
             "checked": false,
             "type": "check",
             "children": []
