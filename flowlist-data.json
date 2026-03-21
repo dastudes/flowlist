@@ -117,15 +117,15 @@
                 "children": []
               }
             ]
-          },
-          {
-            "id": "mn0uxolvbawv",
-            "text": "",
-            "checked": false,
-            "type": "check",
-            "children": []
           }
         ]
+      },
+      {
+        "id": "mn0uxolvbawv",
+        "text": "",
+        "checked": false,
+        "type": "check",
+        "children": []
       },
       {
         "id": "mn0uvombvkk6",
