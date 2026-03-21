@@ -118,6 +118,17 @@
   .ab:hover{background:var(--bg3);color:var(--text)}
   .ich{margin-left:22px}
   .empty-hint{padding:20px 0 0 26px;color:var(--text3);font-size:14px;cursor:text}
+
+  /* ── Drag & Drop ── */
+  .bzone{cursor:grab}
+  .bzone:active{cursor:grabbing}
+  .drag-icon{font-size:12px;color:var(--border2);opacity:0;transition:opacity 0.12s;line-height:1;user-select:none}
+  .ir:hover .drag-icon{opacity:1}
+  .iw.dragging{opacity:0.25;pointer-events:none}
+  .iw.drop-before>.ir{box-shadow:0 -2px 0 0 var(--accent)}
+  .iw.drop-after>.ir{box-shadow:0 2px 0 0 var(--accent)}
+  .iw.drop-child>.ir{background:var(--accent-bg)!important;outline:1.5px solid var(--accent);border-radius:var(--radius)}
+  .drag-clone{position:fixed;pointer-events:none;z-index:9999;background:var(--bg);border:1.5px solid var(--accent);border-radius:var(--radius);padding:4px 10px;font-size:14px;color:var(--text);max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0.9;box-shadow:0 4px 20px rgba(0,0,0,0.18);transform:translate(-50%,-110%);transition:none}
 </style>
 </head>
 <body>
@@ -192,7 +203,7 @@
       <div class="help-row"><span class="kbd">Tab</span> indent &nbsp;|&nbsp; <span class="kbd">Shift+Tab</span> outdent</div>
       <div class="help-row"><span class="kbd">Backspace</span> delete empty item</div>
       <div class="help-row"><span class="kbd">↑ ↓</span> move between items</div>
-      <div class="help-divider">Click <strong>●</strong> bullet to zoom in &nbsp;|&nbsp; <strong>☐</strong> to toggle checkbox &nbsp;|&nbsp; hover item for more actions</div>
+      <div class="help-divider">Drag <strong>●</strong> bullet to reorder · click bullet to zoom in · <strong>☐</strong> to toggle checkbox · hover item for more actions<br>On iPad/iPhone: long-press an item to drag it</div>
     </div>
 
     <div class="outline" id="outline"></div>
@@ -337,8 +348,8 @@ function renderItem(node){
   const isChk=node.type==='check';
   const isDone=isChk&&node.checked;
   const gutter=isChk
-    ?`<div class="bzone" style="cursor:default;visibility:hidden"></div><div class="cbx${isDone?' chk':''}" data-action="toggle" data-id="${node.id}"></div>`
-    :`<div class="bzone" data-action="zoom" data-id="${node.id}" title="Zoom in"><div class="bdot"></div></div>`;
+    ?`<div class="bzone" draggable="true" data-drag-id="${node.id}" title="Drag to reorder"><div class="drag-icon">⠿</div></div><div class="cbx${isDone?' chk':''}" data-action="toggle" data-id="${node.id}"></div>`
+    :`<div class="bzone" draggable="true" data-drag-id="${node.id}" data-action="zoom" data-id="${node.id}" title="Drag to reorder · click to zoom in"><div class="bdot"></div></div>`;
   const actions=`<div class="iact">
     <button class="ab" data-action="ttype" data-id="${node.id}" title="${isChk?'Make bullet':'Make checkbox'}">${isChk?'•':'☐'}</button>
     <button class="ab" data-action="addch" data-id="${node.id}" title="Add child">+</button>
@@ -370,6 +381,171 @@ function render(){
     if(el){pendingCaret==='end'?setCaretEnd(el):setCaretStart(el);}
     pendingFocus=null;
   }
+}
+
+// ── Drag & Drop ──────────────────────────────────────────
+function isDescendant(node,potId){
+  if(node.id===potId)return true;
+  for(const c of node.children){if(isDescendant(c,potId))return true;}
+  return false;
+}
+
+function moveNode(dragId,targetId,pos){
+  if(dragId===targetId)return;
+  const dragNode=findNode(tree,dragId);
+  const targetNode=findNode(tree,targetId);
+  if(!dragNode||!targetNode)return;
+  if(isDescendant(dragNode,targetId))return;
+  const dragPar=findParent(tree,dragId);
+  if(!dragPar)return;
+  const dragIdx=dragPar.children.findIndex(c=>c.id===dragId);
+  dragPar.children.splice(dragIdx,1);
+  if(pos==='child'){
+    targetNode.children.push(dragNode);
+  }else{
+    const targetPar=findParent(tree,targetId);
+    if(!targetPar){dragPar.children.splice(dragIdx,0,dragNode);return;}
+    const ti=targetPar.children.findIndex(c=>c.id===targetId);
+    targetPar.children.splice(pos==='before'?ti:ti+1,0,dragNode);
+  }
+}
+
+function clearDropIndicators(){
+  document.querySelectorAll('.drop-before,.drop-after,.drop-child').forEach(el=>{
+    el.classList.remove('drop-before','drop-after','drop-child');
+  });
+}
+
+function getDropPos(ir,clientY){
+  const rect=ir.getBoundingClientRect();
+  const y=clientY-rect.top,h=rect.height;
+  return y<h*0.28?'before':y>h*0.72?'after':'child';
+}
+
+function wireDrag(outline){
+  let dragId=null,dropTarget=null,dropPos=null;
+
+  outline.addEventListener('dragstart',e=>{
+    const bz=e.target.closest('[data-drag-id]');
+    if(!bz){e.preventDefault();return;}
+    dragId=bz.dataset.dragId;
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain',dragId);
+    // Set custom drag image (blank) so we avoid the ghost image
+    const ghost=document.createElement('div');
+    ghost.style.cssText='position:fixed;top:-999px;width:1px;height:1px';
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost,0,0);
+    setTimeout(()=>{
+      ghost.remove();
+      const iw=document.getElementById('iw-'+dragId);
+      if(iw)iw.classList.add('dragging');
+    },0);
+  });
+
+  outline.addEventListener('dragend',()=>{
+    document.querySelectorAll('.dragging').forEach(el=>el.classList.remove('dragging'));
+    clearDropIndicators();
+    dragId=null;dropTarget=null;dropPos=null;
+  });
+
+  outline.addEventListener('dragover',e=>{
+    if(!dragId)return;
+    e.preventDefault();e.dataTransfer.dropEffect='move';
+    const ir=e.target.closest('.ir');
+    if(!ir)return;
+    const id=ir.dataset.id;
+    if(id===dragId)return;
+    const pos=getDropPos(ir,e.clientY);
+    if(dropTarget!==id||dropPos!==pos){
+      clearDropIndicators();
+      dropTarget=id;dropPos=pos;
+      const iw=ir.closest('.iw');
+      if(iw)iw.classList.add('drop-'+pos);
+    }
+  });
+
+  outline.addEventListener('dragleave',e=>{
+    if(!outline.contains(e.relatedTarget))clearDropIndicators();
+  });
+
+  outline.addEventListener('drop',e=>{
+    e.preventDefault();
+    if(dragId&&dropTarget&&dropPos){
+      document.querySelectorAll('.itext').forEach(el=>syncDOM(el.dataset.id));
+      moveNode(dragId,dropTarget,dropPos);
+      scheduleSave();
+    }
+    clearDropIndicators();
+    document.querySelectorAll('.dragging').forEach(el=>el.classList.remove('dragging'));
+    dragId=null;render();
+  });
+}
+
+function wireTouchDrag(outline){
+  let dragId=null,clone=null,longTimer=null,dragging=false;
+  let dropTarget=null,dropPos=null;
+
+  function irAtPoint(x,y){
+    if(clone)clone.style.display='none';
+    const el=document.elementFromPoint(x,y);
+    if(clone)clone.style.display='';
+    return el?el.closest('.ir'):null;
+  }
+
+  outline.addEventListener('touchstart',e=>{
+    const ir=e.target.closest('.ir');
+    if(!ir)return;
+    if(e.target.closest('.ab,.cbx,[contenteditable]'))return;
+    const id=ir.dataset.id;
+    const tx=e.touches[0].clientX,ty=e.touches[0].clientY;
+    longTimer=setTimeout(()=>{
+      dragging=true;dragId=id;
+      const node=findNode(tree,id);
+      clone=document.createElement('div');
+      clone.className='drag-clone';
+      clone.textContent=node?(node.text||'(empty)'):'';
+      clone.style.left=tx+'px';clone.style.top=ty+'px';
+      document.body.appendChild(clone);
+      const iw=document.getElementById('iw-'+id);
+      if(iw)iw.classList.add('dragging');
+      if(navigator.vibrate)navigator.vibrate(40);
+    },420);
+  },{passive:true});
+
+  outline.addEventListener('touchmove',e=>{
+    if(!longTimer&&!dragging){return;}
+    if(!dragging){clearTimeout(longTimer);longTimer=null;return;}
+    e.preventDefault();
+    const t=e.touches[0],x=t.clientX,y=t.clientY;
+    if(clone){clone.style.left=x+'px';clone.style.top=y+'px';}
+    clearDropIndicators();
+    const ir=irAtPoint(x,y);
+    if(ir&&ir.dataset.id!==dragId){
+      dropPos=getDropPos(ir,y);
+      dropTarget=ir.dataset.id;
+      const iw=ir.closest('.iw');
+      if(iw)iw.classList.add('drop-'+dropPos);
+    }else{dropTarget=null;dropPos=null;}
+  },{passive:false});
+
+  function endTouch(){
+    clearTimeout(longTimer);longTimer=null;
+    if(dragging&&dragId&&dropTarget&&dropPos){
+      document.querySelectorAll('.itext').forEach(el=>syncDOM(el.dataset.id));
+      moveNode(dragId,dropTarget,dropPos);
+      scheduleSave();
+    }
+    if(clone){clone.remove();clone=null;}
+    clearDropIndicators();
+    document.querySelectorAll('.dragging').forEach(el=>el.classList.remove('dragging'));
+    const wasD=dragging;
+    dragging=false;dragId=null;dropTarget=null;dropPos=null;
+    if(wasD)render();
+  }
+
+  outline.addEventListener('touchend',endTouch,{passive:true});
+  outline.addEventListener('touchcancel',endTouch,{passive:true});
 }
 
 // ── Event wiring ──────────────────────────────────────────
@@ -435,6 +611,9 @@ function wireOutline(){
     zoomStack=i===-1?[]:zoomStack.slice(0,i+1);
     scheduleSave();render();
   });
+
+  wireDrag(outline);
+  wireTouchDrag(outline);
 }
 
 // ── Setup screen ──────────────────────────────────────────
