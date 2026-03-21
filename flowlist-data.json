@@ -10,15 +10,15 @@
         "type": "bullet",
         "children": [
           {
-            "id": "mmzd246iuas2",
-            "text": "Create a planning process/timeline/list for Laura",
+            "id": "mmzd73zlxyn2",
+            "text": "Sign up for ",
             "checked": false,
             "type": "check",
             "children": []
           },
           {
-            "id": "mmzd73zlxyn2",
-            "text": "Sign up for ",
+            "id": "mmzd246iuas2",
+            "text": "Create a planning process/timeline/list for Laura",
             "checked": false,
             "type": "check",
             "children": []
