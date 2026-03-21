@@ -17,6 +17,28 @@
             "children": []
           },
           {
+            "id": "mmzd3w2pmc63",
+            "text": "Mission Statement Session",
+            "checked": false,
+            "type": "bullet",
+            "children": [
+              {
+                "id": "mmzfzokap6d8",
+                "text": "Do this or that",
+                "checked": false,
+                "type": "bullet",
+                "children": []
+              },
+              {
+                "id": "mn0nvwar55gg",
+                "text": "",
+                "checked": false,
+                "type": "bullet",
+                "children": []
+              }
+            ]
+          },
+          {
             "id": "mmzd246iuas2",
             "text": "Create a planning process/timeline/list for Laura",
             "checked": false,
@@ -70,28 +92,6 @@
                 "checked": false,
                 "type": "check",
                 "children": []
-              },
-              {
-                "id": "mmzd3w2pmc63",
-                "text": "Mission Statement Session",
-                "checked": false,
-                "type": "bullet",
-                "children": [
-                  {
-                    "id": "mmzfzokap6d8",
-                    "text": "Do this or that",
-                    "checked": false,
-                    "type": "bullet",
-                    "children": []
-                  },
-                  {
-                    "id": "mn0nvwar55gg",
-                    "text": "",
-                    "checked": false,
-                    "type": "bullet",
-                    "children": []
-                  }
-                ]
               },
               {
                 "id": "mmzd5d0h3y27",
