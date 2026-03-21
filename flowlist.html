@@ -96,6 +96,10 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 .ab:hover{background:var(--bg3);color:var(--text)}
 .ich{margin-left:46px}
 .empty-hint{padding:20px 0 0 46px;color:var(--text3);font-size:14px;cursor:text}
+/* collapse toggle */
+.collapse-btn{width:16px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--text3);font-size:9px;transition:color .12s;user-select:none;margin-right:1px}
+.collapse-btn:hover{color:var(--text2)}
+.collapse-btn.placeholder{visibility:hidden;pointer-events:none}
 /* drag states */
 .iw.dg-src{opacity:.25}.iw.dg-src *{pointer-events:none}
 .iw.dg-before>.ir{box-shadow:0 -2px 0 0 var(--accent)}
@@ -147,7 +151,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
     <div class="help-row"><span class="kbd">Enter</span> new item below</div>
     <div class="help-row"><span class="kbd">Tab</span> indent &nbsp;|&nbsp; <span class="kbd">Shift+Tab</span> outdent</div>
     <div class="help-row"><span class="kbd">Backspace</span> delete empty item &nbsp;|&nbsp; <span class="kbd">↑↓</span> navigate</div>
-    <div class="help-div">Mouse: drag <strong>⠿</strong> handle to reorder · click <strong>●</strong> to zoom in · Touch: long-press any item to drag</div>
+    <div class="help-div">Click <strong>▼▶</strong> arrow to collapse/expand · drag <strong>⠿</strong> handle to reorder · click <strong>●</strong> to zoom in · touch: long-press to drag</div>
   </div>
   <div class="outline" id="outline"></div>
 </div>
@@ -228,7 +232,7 @@ async function loadFromGitHub(){
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function findNode(n,id){if(n.id===id)return n;for(const c of n.children){const f=findNode(c,id);if(f)return f;}return null;}
 function findParent(n,id,par=null){if(n.id===id)return par;for(const c of n.children){const f=findParent(c,id,n);if(f!==undefined)return f;}return undefined;}
-function flatItems(n){const r=[];function w(x){for(const c of x.children){r.push(c);w(c);}}w(n);return r;}
+function flatItems(n){const r=[];function w(x){for(const c of x.children){r.push(c);if(!c.collapsed)w(c);}}w(n);return r;}
 function getVR(){if(!zoomStack.length)return tree;return findNode(tree,zoomStack[zoomStack.length-1].id)||tree;}
 function syncDOM(id){const el=document.querySelector(`.itext[data-id="${id}"]`);if(el){const n=findNode(tree,id);if(n)n.text=el.innerText.replace(/\n$/,'');}}
 function syncAllDOM(){document.querySelectorAll('.itext').forEach(el=>syncDOM(el.dataset.id));}
@@ -356,13 +360,19 @@ function renderBC(){
 }
 function renderItem(node){
   const isChk=node.type==='check',isDone=isChk&&node.checked;
+  const hasKids=node.children.length>0;
+  const isCollapsed=!!node.collapsed;
+  // Collapse toggle: arrow for items with children, invisible placeholder otherwise (keeps alignment)
+  const collapseBtn=hasKids
+    ?`<div class="collapse-btn" data-action="collapse" data-id="${node.id}" title="${isCollapsed?'Expand':'Collapse'}">${isCollapsed?'▶':'▼'}</div>`
+    :`<div class="collapse-btn placeholder">▼</div>`;
   const handle=`<div class="drag-handle" data-id="${node.id}" title="Drag to reorder">⠿</div>`;
   const az=isChk
     ?`<div class="action-zone" style="cursor:default"><div class="cbx${isDone?' chk':''}" data-action="toggle" data-id="${node.id}"></div></div>`
     :`<div class="action-zone" data-action="zoom" data-id="${node.id}" title="Zoom in"><div class="bdot"></div></div>`;
   const actions=`<div class="iact"><button class="ab" data-action="ttype" data-id="${node.id}" title="${isChk?'Make bullet':'Make checkbox'}">${isChk?'•':'☐'}</button><button class="ab" data-action="addch" data-id="${node.id}" title="Add child">+</button></div>`;
-  const kids=node.children.length?`<div class="ich">${node.children.map(c=>renderItem(c)).join('')}</div>`:'';
-  return`<div class="iw${node.children.length?' has-ch':''}" id="iw-${node.id}"><div class="ir" data-id="${node.id}"><div class="igutter">${handle}${az}</div><div style="flex:1;min-width:0"><div class="itext${isDone?' done':''}" contenteditable="true" data-id="${node.id}" data-ph="…" spellcheck="false">${esc(node.text)}</div></div>${actions}</div>${kids}</div>`;
+  const kids=hasKids&&!isCollapsed?`<div class="ich">${node.children.map(c=>renderItem(c)).join('')}</div>`:'';
+  return`<div class="iw${hasKids?' has-ch':''}${isCollapsed?' collapsed':''}" id="iw-${node.id}"><div class="ir" data-id="${node.id}"><div class="igutter">${collapseBtn}${handle}${az}</div><div style="flex:1;min-width:0"><div class="itext${isDone?' done':''}" contenteditable="true" data-id="${node.id}" data-ph="…" spellcheck="false">${esc(node.text)}</div></div>${actions}</div>${kids}</div>`;
 }
 function render(){
   const vr=getVR();renderBC();const out=document.getElementById('outline');
@@ -394,7 +404,10 @@ function wireOutline(){
       vr.children.push(newN);pendingFocus=newN.id;pendingCaret='start';scheduleSave();render();return;}
     const btn=e.target.closest('[data-action]');if(!btn)return;
     const action=btn.dataset.action,id=btn.dataset.id;
-    if(action==='zoom'){syncDOM(id);const node=findNode(tree,id);if(!node)return;
+    if(action==='collapse'){
+      const node=findNode(tree,id);if(!node)return;
+      node.collapsed=!node.collapsed;scheduleSave();render();
+    }else if(action==='zoom'){syncDOM(id);const node=findNode(tree,id);if(!node)return;
       zoomStack.push({id,text:node.text});
       if(!node.children.length){const newN={id:uid(),text:'',checked:false,type:'bullet',children:[]};node.children.push(newN);pendingFocus=newN.id;}
       else pendingFocus=node.children[0].id;
