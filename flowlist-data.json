@@ -13,8 +13,16 @@
             "id": "mmzd246iuas2",
             "text": "Create a planning process/timeline/list for Laura",
             "checked": false,
-            "type": "check",
-            "children": []
+            "type": "bullet",
+            "children": [
+              {
+                "id": "mn0qoihesd1y",
+                "text": "",
+                "checked": false,
+                "type": "bullet",
+                "children": []
+              }
+            ]
           },
           {
             "id": "mmzd73zlxyn2",
@@ -137,5 +145,10 @@
     "checked": false,
     "type": "bullet"
   },
-  "zoomStack": []
+  "zoomStack": [
+    {
+      "id": "mmzd246iuas2",
+      "text": "Create a planning process/timeline/list for Laura"
+    }
+  ]
 }
