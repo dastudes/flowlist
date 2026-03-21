@@ -17,6 +17,27 @@
             "children": []
           },
           {
+            "id": "mmzd73zlxyn2",
+            "text": "Sign up for ",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
+            "id": "mn0o4vle3fxp",
+            "text": "do this and that",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
+            "id": "mn0o550v49m9",
+            "text": "",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
             "id": "mmzd2npm5p3y",
             "text": "Start renewal process for members at end of two years (after the next Board meeting)",
             "checked": false,
