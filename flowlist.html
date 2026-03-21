@@ -231,6 +231,9 @@ async function ghGet(){
 
 async function ghPut(data){
   const url=`https://api.github.com/repos/${cfg.repo}/contents/${cfg.file}`;
+  // Always fetch the current SHA before writing to avoid stale-SHA conflicts across devices
+  const check=await fetch(url,{headers:{Authorization:`token ${cfg.pat}`,'Accept':'application/vnd.github+json'}});
+  if(check.ok){const d=await check.json();fileSha=d.sha;}
   const body={message:`FlowList sync ${new Date().toISOString()}`,content:btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))))};
   if(fileSha)body.sha=fileSha;
   const r=await fetch(url,{method:'PUT',headers:{Authorization:`token ${cfg.pat}`,'Accept':'application/vnd.github+json','Content-Type':'application/json'},body:JSON.stringify(body)});
