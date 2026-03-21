@@ -25,6 +25,13 @@
           },
           {
             "id": "mn0o4vle3fxp",
+            "text": "do this and that",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
+            "id": "mn0o550v49m9",
             "text": "",
             "checked": false,
             "type": "check",
