@@ -28,19 +28,18 @@
             "text": "Data from Jess",
             "checked": false,
             "type": "check",
-            "children": [
-              {
-                "id": "mmzd67h5qlmr",
-                "text": "Add Susan to the session?",
-                "checked": false,
-                "type": "check",
-                "children": []
-              }
-            ]
+            "children": []
           },
           {
             "id": "mmzd4yip8u27",
             "text": "Talk to referrers",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
+            "id": "mmzd67h5qlmr",
+            "text": "Add Susan to the session?",
             "checked": false,
             "type": "check",
             "children": []
