@@ -5,10 +5,17 @@
     "children": [
       {
         "id": "mmzd324h2si8",
-        "text": "Follow up on data/things for planning",
+        "text": "Sign up for SABR conferenceFollow up on data/things for planning",
         "checked": false,
         "type": "check",
         "children": [
+          {
+            "id": "mn255nuf8fx5",
+            "text": "",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
           {
             "id": "mmzd5d0h3y27",
             "text": "Pull together thoughts on how to lead",
