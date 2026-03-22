@@ -10,6 +10,13 @@
         "type": "check",
         "children": [
           {
+            "id": "mn2581quhq6a",
+            "text": "",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
             "id": "mmzd5d0h3y27",
             "text": "Pull together thoughts on how to lead",
             "checked": false,
