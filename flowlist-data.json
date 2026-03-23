@@ -113,6 +113,13 @@
         "children": [
           {
             "id": "mn3d984ofgz8",
+            "text": "Reach out to two-year renewal members",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
+            "id": "mn3d9eknno6r",
             "text": "",
             "checked": false,
             "type": "check",
