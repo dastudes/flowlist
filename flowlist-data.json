@@ -11,7 +11,7 @@
         "children": [
           {
             "id": "mmzd73zlxyn2",
-            "text": "Take maerials to Abt",
+            "text": "Take materials to Abt",
             "checked": false,
             "type": "check",
             "children": []
@@ -28,7 +28,15 @@
             "text": "Send the Board calendar to the Board before meeting",
             "checked": false,
             "type": "check",
-            "children": []
+            "children": [
+              {
+                "id": "mn3nsbq1vokk",
+                "text": "",
+                "checked": false,
+                "type": "check",
+                "children": []
+              }
+            ]
           },
           {
             "id": "mmzd2npm5p3y",
