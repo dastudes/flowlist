@@ -110,7 +110,15 @@
         "text": "AFter Board Meeting",
         "checked": false,
         "type": "check",
-        "children": []
+        "children": [
+          {
+            "id": "mn3d984ofgz8",
+            "text": "",
+            "checked": false,
+            "type": "check",
+            "children": []
+          }
+        ]
       },
       {
         "id": "mmzd3w2pmc63",
