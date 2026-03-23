@@ -132,6 +132,13 @@
             "children": [
               {
                 "id": "mn3didomtdih",
+                "text": "Differentiate mission/vision/values",
+                "checked": false,
+                "type": "bullet",
+                "children": []
+              },
+              {
+                "id": "mn3dj5w7jbds",
                 "text": "",
                 "checked": false,
                 "type": "bullet",
