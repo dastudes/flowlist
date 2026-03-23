@@ -46,6 +46,13 @@
         "type": "check",
         "children": [
           {
+            "id": "mn3d8umg7pzl",
+            "text": "",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
             "id": "mmzd5d0h3y27",
             "text": "Pull together thoughts on how to lead",
             "checked": false,
@@ -113,7 +120,7 @@
         "children": [
           {
             "id": "mmzfzokap6d8",
-            "text": "Do this or that",
+            "text": "",
             "checked": false,
             "type": "bullet",
             "children": []
