@@ -73,13 +73,6 @@
             "type": "check",
             "children": [
               {
-                "id": "mmzd6p499vhn",
-                "text": "How to make Mission Statement",
-                "checked": false,
-                "type": "check",
-                "children": []
-              },
-              {
                 "id": "mmzd6u9536uq",
                 "text": "",
                 "checked": false,
