@@ -68,18 +68,10 @@
           },
           {
             "id": "mmzd6gixwxjj",
-            "text": "Send info to the attending group after the Benefit",
+            "text": "",
             "checked": false,
             "type": "check",
-            "children": [
-              {
-                "id": "mmzd6u9536uq",
-                "text": "",
-                "checked": false,
-                "type": "check",
-                "children": []
-              }
-            ]
+            "children": []
           }
         ]
       },
