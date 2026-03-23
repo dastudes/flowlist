@@ -46,13 +46,6 @@
         "type": "check",
         "children": [
           {
-            "id": "mn3d8umg7pzl",
-            "text": "",
-            "checked": false,
-            "type": "check",
-            "children": []
-          },
-          {
             "id": "mmzd5d0h3y27",
             "text": "Pull together thoughts on how to lead",
             "checked": false,
@@ -111,6 +104,13 @@
             ]
           }
         ]
+      },
+      {
+        "id": "mn3d8umg7pzl",
+        "text": "AFter Board Meeting",
+        "checked": false,
+        "type": "check",
+        "children": []
       },
       {
         "id": "mmzd3w2pmc63",
