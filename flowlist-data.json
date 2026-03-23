@@ -120,6 +120,13 @@
           },
           {
             "id": "mn3d9eknno6r",
+            "text": "Send audit spreadsheet to everyone",
+            "checked": false,
+            "type": "check",
+            "children": []
+          },
+          {
+            "id": "mn3d9si8zyth",
             "text": "",
             "checked": false,
             "type": "check",
