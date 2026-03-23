@@ -126,15 +126,15 @@
         "type": "bullet",
         "children": [
           {
-            "id": "mmzfzokap6d8",
-            "text": "Add Susan to the session?",
+            "id": "mn3ddmywsb2w",
+            "text": "Send info beforehand",
             "checked": false,
             "type": "bullet",
             "children": []
           },
           {
-            "id": "mn3ddmywsb2w",
-            "text": "Send info beforehand",
+            "id": "mmzfzokap6d8",
+            "text": "Add Susan to the session?",
             "checked": false,
             "type": "bullet",
             "children": []
