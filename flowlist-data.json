@@ -126,10 +126,18 @@
           },
           {
             "id": "mn0nvwar55gg",
-            "text": "",
+            "text": "During the session...",
             "checked": false,
             "type": "bullet",
-            "children": []
+            "children": [
+              {
+                "id": "mn3didomtdih",
+                "text": "",
+                "checked": false,
+                "type": "bullet",
+                "children": []
+              }
+            ]
           }
         ]
       },
