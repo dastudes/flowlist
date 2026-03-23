@@ -130,14 +130,15 @@
             "text": "Add Susan to the session?",
             "checked": false,
             "type": "bullet",
-            "children": []
-          },
-          {
-            "id": "mn3ddmywsb2w",
-            "text": "",
-            "checked": false,
-            "type": "bullet",
-            "children": []
+            "children": [
+              {
+                "id": "mn3ddmywsb2w",
+                "text": "Send info beforehand",
+                "checked": false,
+                "type": "bullet",
+                "children": []
+              }
+            ]
           },
           {
             "id": "mn0nvwar55gg",
