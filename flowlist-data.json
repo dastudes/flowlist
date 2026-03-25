@@ -12,7 +12,7 @@
           {
             "id": "mmzd73zlxyn2",
             "text": "Take materials to Abt",
-            "checked": false,
+            "checked": true,
             "type": "check",
             "children": []
           },
