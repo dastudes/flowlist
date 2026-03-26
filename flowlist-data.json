@@ -8,22 +8,7 @@
         "text": "To Do Soon",
         "checked": false,
         "type": "bullet",
-        "children": [
-          {
-            "id": "mn3x75gwcy09",
-            "text": "Clean humidifer basin",
-            "checked": false,
-            "type": "check",
-            "children": []
-          },
-          {
-            "id": "mmzd2npm5p3y",
-            "text": "",
-            "checked": false,
-            "type": "check",
-            "children": []
-          }
-        ]
+        "children": []
       },
       {
         "id": "mmzd324h2si8",
