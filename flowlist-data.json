@@ -35,15 +35,7 @@
             "text": "Send the Board calendar to the Board before meeting",
             "checked": false,
             "type": "check",
-            "children": [
-              {
-                "id": "mn3nsbq1vokk",
-                "text": "Already sent the audit spreadsheet",
-                "checked": false,
-                "type": "check",
-                "children": []
-              }
-            ]
+            "children": []
           },
           {
             "id": "mmzd2npm5p3y",
